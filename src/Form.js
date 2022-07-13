@@ -1,30 +1,36 @@
-import React, { useState} from 'react'
+import React, {useState} from 'react'
+import {useHistory} from 'react-router-dom';
+import ViewChartjs from "./Line"
 
+export const valeurFinale = [0];
 const Form = () => {
-  const [CONSOLE,setConsole] = useState('PS2');
+
+ const dater= [2009,2010,2011,2012,2013,2014,2015,2016,2017,2018]
+  const [CONSOLE,setConsole] = useState('PS2')
   const [CATEGORY, setCategory] = useState('Action');
   const [RATING, setRating] = useState('T') ;
   const [USER_POINTS, setUserPoint] = useState(0.1);
-  const [YEAR, SetYear] = useState(2000);
+ 
   const [CRITICS_POINTS, setCritic] = useState(1);
   const [PUBLISHER, setPublisher] = useState('Nintendo');
   const [isPending,setIspending] = useState(false);
-  const [valeurFinale,setValeurFinale] = useState();
+//   const [valeurFinale,setValeurFinale] = useState([2]);
+  const history = useHistory();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const blog = {CONSOLE,RATING,CRITICS_POINTS,CATEGORY,YEAR,PUBLISHER,USER_POINTS};
-       console.log(blog);
-    setIspending(true);
-    fetch('http://127.0.0.1:5000/get_prediction',{
+    const handleSubmit = (e) => { 
+
+        e.preventDefault();
+            const blog = {CONSOLE,RATING,CRITICS_POINTS,CATEGORY,dater,PUBLISHER,USER_POINTS};
+        fetch('http://127.0.0.1:5000/get_prediction',{
         method: 'POST',
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify( blog)
-    }).then(response=>response.json()
-        ).then(data=>{setValeurFinale(data.result)})
-    
-  }
-  
+    }).then(response=>response.json())
+    .then(data=>{valeurFinale.push(data.result)})
+    history.push('/Line')
+    console.log(valeurFinale)
+ };
+       
   return (
     <div className=''>
         <form onSubmit={handleSubmit} className='w-full h-full flex flex-cols justify-center items-center'>
@@ -89,21 +95,6 @@ const Form = () => {
                     </div>
                 </div>
 
-                <div className='w-full '>
-                    <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">Select year:</label>
-                    <div className="relative">
-                        <select className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-state" value={YEAR} onChange = {(e) => SetYear(parseInt(e.target.value))}>
-                            <option value="2000">2000</option>
-                            <option value="2005">2005</option>
-                            <option value="2010">2010</option>
-                            <option value="2020">2020</option>
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-                        </div>
-                    </div>
-                </div>
-
                 <div className=''>
                     <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">Select publisher</label>
                     <div className="relative">
@@ -138,13 +129,13 @@ const Form = () => {
                     { isPending && <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Submiting...</button>}
                 </div>
             </div>
+            
         </form>
         <div className='w-full h-full flex flex-cols justify-center items-center'>
             <h5 className='text-2xl'>La prediction est :</h5>
-            {valeurFinale}
+            {valeurFinale[0]}
         </div>
     </div>
   )
 }
-
 export default Form;
